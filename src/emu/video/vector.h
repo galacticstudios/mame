@@ -73,8 +73,12 @@ private:
 	// Serial output option for driving vector display hardware
 	const char * m_serial;
 	int m_serial_fd;
-	float m_serial_scale;
+	float m_serial_scale_x;
+	float m_serial_scale_y;
+	float m_serial_offset_x;
+	float m_serial_offset_y;
 	int m_serial_rotate;
+	int m_serial_flip;
 	int m_serial_bright;
 	int m_serial_drop_frame;
 	unsigned m_vector_transit[3];

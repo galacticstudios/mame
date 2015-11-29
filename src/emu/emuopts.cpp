@@ -117,7 +117,11 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_BEAM_INTENSITY_WEIGHT,                      "0",         OPTION_FLOAT,      "set vector beam intensity weight " },
 	{ OPTION_FLICKER,                                    "0",         OPTION_FLOAT,      "set vector flicker effect" },
 	{ OPTION_VECTOR_SERIAL,                              "",          OPTION_STRING,      "set vector serial device" },
-	{ OPTION_VECTOR_SCALE,                               "1.0",       OPTION_FLOAT,      "set vector serial output scale" },
+	{ OPTION_VECTOR_SCALE,                               "0.0",       OPTION_FLOAT,      "set vector serial output scale" },
+	{ OPTION_VECTOR_SCALE_X,                             "1.0",       OPTION_FLOAT,      "set vector x axis serial output scale" },
+	{ OPTION_VECTOR_SCALE_Y,                             "1.0",       OPTION_FLOAT,      "set vector y axis serial output scale" },
+	{ OPTION_VECTOR_OFFSET_X,                            "1024",       OPTION_FLOAT,      "set vector x axis serial offset (1024)" },
+	{ OPTION_VECTOR_OFFSET_Y,                            "1024",       OPTION_FLOAT,      "set vector y axis serial offset (1024)" },
 	{ OPTION_VECTOR_ROTATE,                              "0",         OPTION_INTEGER,    "set vector serial rotation (0,1,2,3)" },
 	{ OPTION_VECTOR_BRIGHT,                              "200",       OPTION_INTEGER,    "set vector threshold for bright lines (0-255)" },
 

@@ -260,10 +260,11 @@ void vector_device::serial_draw_line(
 	static int last_x;
 	static int last_y;
 
-	const int x0 = (xf0 * 2048 - 1024) * m_serial_scale + 1024;
-	const int y0 = (yf0 * 2048 - 1024) * m_serial_scale + 1024;
-	const int x1 = (xf1 * 2048 - 1024) * m_serial_scale + 1024;
-	const int y1 = (yf1 * 2048 - 1024) * m_serial_scale + 1024;
+	// scale and shift each of the axes.
+	const int x0 = (xf0 * 2047 - 1024) * m_serial_scale_x + m_serial_offset_x;
+	const int y0 = (yf0 * 2047 - 1024) * m_serial_scale_y + m_serial_offset_y;
+	const int x1 = (xf1 * 2047 - 1024) * m_serial_scale_x + m_serial_offset_x;
+	const int y1 = (yf1 * 2047 - 1024) * m_serial_scale_y + m_serial_offset_y;
 
 	// if this is not a continuous segment,
 	// we must add a transit command
@@ -367,7 +368,19 @@ void vector_device::device_start()
 
 	/* Setup the serial output of the XY coords if configured */
 	m_serial = machine().options().vector_serial();
-	m_serial_scale = machine().options().vector_scale();
+  	const float scale = machine().options().vector_scale();
+	if (scale != 0.0)
+	{
+		// user specified a scale on the command line
+		m_serial_scale_x = m_serial_scale_y = scale;
+	} else {
+		// use the per-axis scales
+		m_serial_scale_x = machine().options().vector_scale_x();
+		m_serial_scale_y = machine().options().vector_scale_y();
+	}
+
+	m_serial_offset_x = machine().options().vector_offset_x();
+	m_serial_offset_y = machine().options().vector_offset_y();
 	m_serial_rotate = machine().options().vector_rotate();
 	m_serial_bright = machine().options().vector_bright();
 	m_serial_drop_frame = 0;
