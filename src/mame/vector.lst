@@ -9,6 +9,9 @@
 
 ******************************************************************************/
 
+// GCE
+vectrex   // General Consumer Electric Vectrex - 1982-1984
+// (aka Milton-Bradley Vectrex)
 
 // Atari vector games
 llander         // 0345xx           no copyright notice
@@ -64,3 +67,32 @@ alphaone        // (proto)          (c) 1983
 alphaonea       // (proto)          (c) 1983
 esb             // 136031           (c) 1985
 tomcat          // (proto)          (c) 1985
+
+// Cinematronics vector games
+spacewar        // (c) 1977
+spaceshp        // (c) 1978 Cinematronics (Sega licence)
+barrier         // (c) 1979 Vectorbeam
+starcas         // (c) 1980
+starcas1        // (c) 1980
+starcasp        // (c) 1980 prototype
+starcase        // (c) 1980 Cinematronics (Mottoeis license)
+stellcas        // bootleg
+spaceftr        // (c) 1981 Zaccaria
+tailg           // (c) 1979
+ripoff          // (c) 1980
+armora          // (c) 1980
+armorap         // (c) 1980
+armorar         // (c) 1980 Cinematronics (Rock-ola license)
+wotw            // (c) 1981
+wotwc           // (c) 1981
+warrior         // (c) 1979 Vectorbeam
+starhawk        // (c) 1979
+solarq          // (c) 1981
+boxingb         // (c) 1981
+speedfrk        // (c) 1979 Vectorbeam
+sundance        // (c) 1979
+demon           // (c) 1982 Rock-ola
+qb3             // (c) 1982 Rock-ola - prototype
+// this one uses 68000+Z80 instead of the Cinematronics CPU
+cchasm
+cchasm1         // (c) 1983 Cinematronics / GCE

@@ -24,13 +24,14 @@ CPUS["M6800"] = true
 CPUS["M6809"] = true
 CPUS["M680X0"] = true
 CPUS["TMS9900"] = true
-CPUS["TMS32010"] = true
-CPUS["TMS32025"] = true
-CPUS["TMS32031"] = true
-CPUS["TMS32051"] = true
-CPUS["TMS32082"] = true
-CPUS["TMS57002"] = true
+--CPUS["TMS32010"] = true
+--CPUS["TMS32025"] = true
+--CPUS["TMS32031"] = true
+--CPUS["TMS32051"] = true
+--CPUS["TMS32082"] = true
+--CPUS["TMS57002"] = true
 CPUS["COP400"] = true
+CPUS["CCPU"] = true
 
 --------------------------------------------------
 -- Specify all the sound cores necessary for the
@@ -70,14 +71,17 @@ MACHINES["Z80CTC"] = true
 MACHINES["68681"] = true
 MACHINES["BANKDEV"] = true
 MACHINES["X2212"] = true
+MACHINES["6522VIA"] = true
+MACHINES["6840PTM"] = true
 
 
 --------------------------------------------------
 -- specify available bus cores
 --------------------------------------------------
 
-BUSES["CENTRONICS"] = true
+--BUSES["CENTRONICS"] = true
 BUSES["GENERIC"] = true
+BUSES["VECTREX"] = true
 
 --------------------------------------------------
 -- This is the list of files that are necessary
@@ -106,6 +110,11 @@ function createProjects_mame_vector(_target, _subtarget)
 files {
 	MAME_DIR .. "src/mame/video/avgdvg.cpp",
 	MAME_DIR .. "src/mame/video/avgdvg.h",
+
+	MAME_DIR .. "src/mame/drivers/vectrex.cpp",
+	MAME_DIR .. "src/mame/includes/vectrex.h",
+	MAME_DIR .. "src/mame/machine/vectrex.cpp",
+	MAME_DIR .. "src/mame/video/vectrex.cpp",
 
 	MAME_DIR .. "src/mame/drivers/arcadecl.cpp",
 	MAME_DIR .. "src/mame/includes/arcadecl.h",
@@ -382,6 +391,30 @@ files {
 	MAME_DIR .. "src/mame/video/atarimo.h",
 	MAME_DIR .. "src/mame/video/atarirle.cpp",
 	MAME_DIR .. "src/mame/video/atarirle.h",
+
+
+-- createMAMEProjects(_target, _subtarget, "cinemat")
+	MAME_DIR .. "src/mame/drivers/ataxx.cpp",
+	MAME_DIR .. "src/mame/drivers/cinemat.cpp",
+	MAME_DIR .. "src/mame/includes/cinemat.h",
+	MAME_DIR .. "src/mame/audio/cinemat.cpp",
+	MAME_DIR .. "src/mame/video/cinemat.cpp",
+	MAME_DIR .. "src/mame/drivers/cchasm.cpp",
+	MAME_DIR .. "src/mame/includes/cchasm.h",
+	MAME_DIR .. "src/mame/machine/cchasm.cpp",
+	MAME_DIR .. "src/mame/audio/cchasm.cpp",
+	MAME_DIR .. "src/mame/video/cchasm.cpp",
+	MAME_DIR .. "src/mame/drivers/dlair.cpp",
+	MAME_DIR .. "src/mame/drivers/dlair2.cpp",
+	MAME_DIR .. "src/mame/drivers/embargo.cpp",
+	MAME_DIR .. "src/mame/drivers/jack.cpp",
+	MAME_DIR .. "src/mame/includes/jack.h",
+	MAME_DIR .. "src/mame/video/jack.cpp",
+	MAME_DIR .. "src/mame/drivers/leland.cpp",
+	MAME_DIR .. "src/mame/includes/leland.h",
+	MAME_DIR .. "src/mame/machine/leland.cpp",
+	MAME_DIR .. "src/mame/audio/leland.cpp",
+	MAME_DIR .. "src/mame/video/leland.cpp",
 }
 end
 
