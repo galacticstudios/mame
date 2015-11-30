@@ -318,6 +318,7 @@ void vector_device::serial_send()
 
 	size_t offset = 0;
 
+	if(1)
 	printf("%zu vectors: off=%u on=%u bright=%u%s\n",
 		m_serial_offset/3,
 		m_vector_transit[0],
@@ -462,6 +463,19 @@ float vector_device::normalized_sigmoid(float n, float k)
 void vector_device::add_point(int x, int y, rgb_t color, int intensity)
 {
 	point *newpoint;
+
+printf("%d %d: %d,%d,%d @ %d\n", x, y, color.r(), color.b(), color.g(), intensity);
+
+	// hack for the vectrex
+	// -- convert "128,128,128" @ 255 to "255,255,255" @ 127
+	if (color.r() == 128
+	&&  color.b() == 128
+	&&  color.g() == 128
+	&&  intensity == 255)
+	{
+		color = rgb_t(255,255,255);
+		intensity = 128;
+	}
 
 	intensity = MAX(0, MIN(255, intensity));
 
