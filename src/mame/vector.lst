@@ -96,3 +96,22 @@ qb3             // (c) 1982 Rock-ola - prototype
 // this one uses 68000+Z80 instead of the Cinematronics CPU
 cchasm
 cchasm1         // (c) 1983 Cinematronics / GCE
+
+// other manufacturers
+aztarac         // (c) 1983 Centuri (vector game)
+omegrace        // (c) 1981 Midway
+omegrace2       // (c) 1981 Midway
+
+// Sega G-80 vector games
+spacfury        // (c) 1981
+spacfurya       // no copyright notice
+spacfuryb       // no copyright notice
+zektor          // (c) 1982
+tacscan         // (c) 1982
+elim2           // (c) 1981 Gremlin
+elim2a          // (c) 1981 Gremlin
+elim2c          // (c) 1981 Gremlin
+elim4           // (c) 1981 Gremlin
+elim4p          // (c) 1981 Gremlin
+startrek        // (c) 1982
+
