@@ -371,10 +371,10 @@ void vector_device::serial_send()
 		if (!s)
 			break;
 	
-		const int x0 = reverse ? s->x0 : s->x1;
-		const int y0 = reverse ? s->y0 : s->y1;
-		const int x1 = reverse ? s->x1 : s->x0;
-		const int y1 = reverse ? s->y1 : s->y0;
+		const int x0 = reverse ? s->x1 : s->x0;
+		const int y0 = reverse ? s->y1 : s->y0;
+		const int x1 = reverse ? s->x0 : s->x1;
+		const int y1 = reverse ? s->y0 : s->y1;
 
 		// if this is not a continuous segment,
 		// we must add a transit command
