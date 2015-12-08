@@ -163,6 +163,31 @@ float vector_device::m_beam_width_max = 0.0f;
 float vector_device::m_beam_intensity_weight = 0.0f;
 int vector_device::m_vector_index;
 
+struct serial_segment_t {
+	struct serial_segment_t * next;
+	int intensity;
+	int x0;
+	int y0;
+	int x1;
+	int y1;
+
+	serial_segment_t(
+		int x0,
+		int y0,
+		int x1,
+		int y1,
+		int intensity
+	) :
+		next(NULL),
+		intensity(intensity),
+		x0(x0),
+		y0(y0),
+		x1(x1),
+		y1(y1)
+	{
+	}
+};
+
 int
 serial_open(
         const char * const dev
@@ -246,6 +271,9 @@ void vector_device::serial_draw_point(
 }
 
 
+// This will only be called with non-zero intensity lines.
+// we keep a linked list of the vectors and sort them with
+// a greedy insertion sort.
 void vector_device::serial_draw_line(
 	float xf0,
 	float yf0,
@@ -257,38 +285,21 @@ void vector_device::serial_draw_line(
 	if (m_serial_fd < 0)
 		return;
 
-	static int last_x;
-	static int last_y;
-
 	// scale and shift each of the axes.
 	const int x0 = (xf0 * 2047 - 1024) * m_serial_scale_x + m_serial_offset_x;
 	const int y0 = (yf0 * 2047 - 1024) * m_serial_scale_y + m_serial_offset_y;
 	const int x1 = (xf1 * 2047 - 1024) * m_serial_scale_x + m_serial_offset_x;
 	const int y1 = (yf1 * 2047 - 1024) * m_serial_scale_y + m_serial_offset_y;
 
-	// if this is not a continuous segment,
-	// we must add a transit command
-	if (last_x != x0 || last_y != y0)
-	{
-		serial_draw_point(x0, y0, 0);
-		int dx = x0 - last_x;
-		int dy = y0 - last_y;
-		m_vector_transit[0] += sqrt(dx*dx + dy*dy);
-	}
+	serial_segment_t * const new_segment
+		= new serial_segment_t(x0, y0, x1, y1, intensity);
 
-	// transit to the new point
-	int dx = x1 - x0;
-	int dy = y1 - y0;
-	int dist = sqrt(dx*dx + dy*dy);
-
-	serial_draw_point(x1, y1, intensity);
-	if (intensity > m_serial_bright)
-		m_vector_transit[2] += dist;
+	if (this->m_serial_segments_tail)
+		this->m_serial_segments_tail->next = new_segment;
 	else
-		m_vector_transit[1] += dist;
+		this->m_serial_segments = new_segment;
 
-	last_x = x1;
-	last_y = y1;
+	this->m_serial_segments_tail = new_segment;
 }
 
 
@@ -310,6 +321,95 @@ void vector_device::serial_send()
 {
 	if (m_serial_fd < 0)
 		return;
+
+	int last_x = -1;
+	int last_y = -1;
+
+	// find the next closest point to the last one.
+	// greedy sorting algorithm reduces beam transit time
+	// fairly significantly. doesn't matter for the
+	// vectorscope, but makes a big difference for Vectrex
+	// and other slower displays.
+	while(this->m_serial_segments)
+	{
+		int reverse = 0;
+		int min = 1e6;
+		serial_segment_t ** min_seg
+			= &this->m_serial_segments;
+
+		if (m_serial_sort)
+		for(serial_segment_t ** s = min_seg ; *s ; s = &(*s)->next)
+		{
+			int dx0 = (*s)->x0 - last_x;
+			int dy0 = (*s)->y0 - last_y;
+			int dx1 = (*s)->x1 - last_x;
+			int dy1 = (*s)->y1 - last_y;
+			int d0 = sqrt(dx0*dx0 + dy0*dy0);
+			int d1 = sqrt(dx1*dx1 + dy1*dy1);
+
+			if(d0 < min)
+			{
+				min_seg = s;
+				min = d0;
+				reverse = 0;
+			}
+
+			if (d1 < min)
+			{
+				min_seg = s;
+				min = d1;
+				reverse = 1;
+			}
+
+			// if we have hit two identical points,
+			// then stop the search here.
+			if (min == 0)
+				break;
+		}
+
+		serial_segment_t * const s = *min_seg;
+		if (!s)
+			break;
+	
+		const int x0 = reverse ? s->x0 : s->x1;
+		const int y0 = reverse ? s->y0 : s->y1;
+		const int x1 = reverse ? s->x1 : s->x0;
+		const int y1 = reverse ? s->y1 : s->y0;
+
+		// if this is not a continuous segment,
+		// we must add a transit command
+		if (last_x != x0 || last_y != y0)
+		{
+			serial_draw_point(x0, y0, 0);
+			int dx = x0 - last_x;
+			int dy = y0 - last_y;
+			m_vector_transit[0] += sqrt(dx*dx + dy*dy);
+		}
+
+		// transit to the new point
+		int dx = x1 - x0;
+		int dy = y1 - y0;
+		int dist = sqrt(dx*dx + dy*dy);
+
+		serial_draw_point(x1, y1, s->intensity);
+		last_x = x1;
+		last_y = y1;
+
+		if (s->intensity > m_serial_bright)
+			m_vector_transit[2] += dist;
+		else
+			m_vector_transit[1] += dist;
+
+		// delete this segment from the list
+		*min_seg = s->next;
+		delete s;
+	}
+
+	// ensure that we erase our tracks
+	if(this->m_serial_segments != NULL)
+		fprintf(stderr, "errr?\n");
+	this->m_serial_segments = NULL;
+	this->m_serial_segments_tail = NULL;
 
 	// add the "done" command to the message
 	m_serial_buf[m_serial_offset++] = 1;
@@ -380,11 +480,14 @@ void vector_device::device_start()
 		m_serial_scale_y = machine().options().vector_scale_y();
 	}
 
+	m_serial_segments = m_serial_segments_tail = NULL;
+
 	m_serial_offset_x = machine().options().vector_offset_x();
 	m_serial_offset_y = machine().options().vector_offset_y();
 	m_serial_rotate = machine().options().vector_rotate();
 	m_serial_bright = machine().options().vector_bright();
 	m_serial_drop_frame = 0;
+	m_serial_sort = 1;
 
 	// allocate enough buffer space, although we should never use this much
 	m_serial_buf = auto_alloc_array_clear(machine(), unsigned char, (MAX_POINTS+2) * 3);
@@ -464,7 +567,7 @@ void vector_device::add_point(int x, int y, rgb_t color, int intensity)
 {
 	point *newpoint;
 
-printf("%d %d: %d,%d,%d @ %d\n", x, y, color.r(), color.b(), color.g(), intensity);
+//printf("%d %d: %d,%d,%d @ %d\n", x, y, color.r(), color.b(), color.g(), intensity);
 
 	// hack for the vectrex
 	// -- convert "128,128,128" @ 255 to "255,255,255" @ 127
