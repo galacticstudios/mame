@@ -427,17 +427,24 @@ void vector_device::serial_send()
 		m_serial_drop_frame ? " !" : ""
 	);
 
-	if (m_serial_drop_frame)
+	static unsigned skip_frame;
+	unsigned eagain = 0;
+
+	if (m_serial_drop_frame || skip_frame++ % 2 != 0)
 	{
 		// we skipped a frame, don't skip the next one
 		m_serial_drop_frame = 0;
 	} else
 	while (offset < m_serial_offset)
 	{
+		size_t wlen = m_serial_offset - offset;
+		if (wlen > 64)
+			wlen = 64;
+
 		ssize_t rc = write(m_serial_fd, m_serial_buf + offset, m_serial_offset - offset);
 		if (rc <= 0)
 		{
-			m_serial_drop_frame = 1;
+			eagain++;
 			if (errno == EAGAIN)
 				continue;
 			perror(m_serial);
@@ -448,6 +455,10 @@ void vector_device::serial_send()
 
 		offset += rc;
 	}
+
+	printf("%d eagain.\n", eagain);
+	if (eagain > 20)
+		m_serial_drop_frame = 1;
 
 	serial_reset();
 }
