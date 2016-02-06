@@ -120,10 +120,10 @@ const options_entry emu_options::s_option_entries[] =
 	{ OPTION_VECTOR_SCALE,                               "0.0",       OPTION_FLOAT,      "set vector serial output scale" },
 	{ OPTION_VECTOR_SCALE_X,                             "1.0",       OPTION_FLOAT,      "set vector x axis serial output scale" },
 	{ OPTION_VECTOR_SCALE_Y,                             "1.0",       OPTION_FLOAT,      "set vector y axis serial output scale" },
-	{ OPTION_VECTOR_OFFSET_X,                            "1024",       OPTION_FLOAT,      "set vector x axis serial offset (1024)" },
-	{ OPTION_VECTOR_OFFSET_Y,                            "1024",       OPTION_FLOAT,      "set vector y axis serial offset (1024)" },
+	{ OPTION_VECTOR_OFFSET_X,                            "2048",       OPTION_FLOAT,      "set vector x axis serial offset (1024)" },
+	{ OPTION_VECTOR_OFFSET_Y,                            "2048",       OPTION_FLOAT,      "set vector y axis serial offset (1024)" },
 	{ OPTION_VECTOR_ROTATE,                              "0",         OPTION_INTEGER,    "set vector serial rotation (0,1,2,3)" },
-	{ OPTION_VECTOR_BRIGHT,                              "200",       OPTION_INTEGER,    "set vector threshold for bright lines (0-255)" },
+	{ OPTION_VECTOR_BRIGHT,                              "255",       OPTION_INTEGER,    "set vector threshold for bright lines (0-255)" },
 
 	// sound options
 	{ nullptr,                                              nullptr,        OPTION_HEADER,     "CORE SOUND OPTIONS" },

@@ -52,6 +52,8 @@
 
 #define MAX_POINTS 10000
 
+#define VECTOR_SERIAL_MAX 4095
+
 #define VECTOR_TEAM \
 	"-* Vector Heads *-\n" \
 	"Brad Oliver\n" \
@@ -213,55 +215,62 @@ void vector_device::serial_draw_point(
 	int intensity
 )
 {
-	// always flip the Y, since the vectorscope measures
-	// 0,0 at the bottom left corner, but this coord uses
-	// the top left corner.
-	y = 2047 - y;
-
 	// make sure that we are in range; should always be
 	// due to clipping on the window, but just in case
 	if (x < 0) x = 0;
 	if (y < 0) y = 0;
 
-	if (x > 2047) x = 2047;
-	if (y > 2047) y = 2047;
+	if (x > VECTOR_SERIAL_MAX) x = VECTOR_SERIAL_MAX;
+	if (y > VECTOR_SERIAL_MAX) y = VECTOR_SERIAL_MAX;
+
+	// always flip the Y, since the vectorscope measures
+	// 0,0 at the bottom left corner, but this coord uses
+	// the top left corner.
+	y = VECTOR_SERIAL_MAX - y;
 
 	unsigned bright;
 	if (intensity > m_serial_bright)
-		bright = 3;
+		bright = 63;
 	else
-	if (intensity > 0)
-		bright = 2;
+	if (intensity <= 0)
+		bright = 0;
 	else
-		bright = 1;
+		bright = (intensity * 64) / 256;
+
+	if (bright > 63)
+		bright = 63;
 
 	if (m_serial_rotate == 1)
 	{
 		// +90
 		unsigned tmp = x;
-		x = 2047 - y;
+		x = VECTOR_SERIAL_MAX - y;
 		y = tmp;
 	} else
 	if (m_serial_rotate == 2)
 	{
 		// +180
-		x = 2047 - x;
-		y = 2047 - y;
+		x = VECTOR_SERIAL_MAX - x;
+		y = VECTOR_SERIAL_MAX - y;
 	} else
 	if (m_serial_rotate == 3)
 	{
 		// -90
 		unsigned t = x;
 		x = y;
-		y = 2047 - t;
+		y = VECTOR_SERIAL_MAX - t;
 	}
 
 	uint32_t cmd = 0
-		| (bright << 22)
-		| (x & 0x7FF) << 11
-		| (y & 0x7FF) <<  0
+		| (2 << 30)
+		| (bright & 0x3F) << 24
+		| (x & 0xFFF) << 12
+		| (y & 0xFFF) <<  0
 		;
 
+	//printf("%08x %8d %8d %3d\n", cmd, x, y, intensity);
+
+	m_serial_buf[m_serial_offset++] = cmd >> 24;
 	m_serial_buf[m_serial_offset++] = cmd >> 16;
 	m_serial_buf[m_serial_offset++] = cmd >>  8;
 	m_serial_buf[m_serial_offset++] = cmd >>  0;
@@ -286,10 +295,10 @@ void vector_device::serial_draw_line(
 		return;
 
 	// scale and shift each of the axes.
-	const int x0 = (xf0 * 2047 - 1024) * m_serial_scale_x + m_serial_offset_x;
-	const int y0 = (yf0 * 2047 - 1024) * m_serial_scale_y + m_serial_offset_y;
-	const int x1 = (xf1 * 2047 - 1024) * m_serial_scale_x + m_serial_offset_x;
-	const int y1 = (yf1 * 2047 - 1024) * m_serial_scale_y + m_serial_offset_y;
+	const int x0 = (xf0 * VECTOR_SERIAL_MAX - VECTOR_SERIAL_MAX/2) * m_serial_scale_x + m_serial_offset_x;
+	const int y0 = (yf0 * VECTOR_SERIAL_MAX - VECTOR_SERIAL_MAX/2) * m_serial_scale_y + m_serial_offset_y;
+	const int x1 = (xf1 * VECTOR_SERIAL_MAX - VECTOR_SERIAL_MAX/2) * m_serial_scale_x + m_serial_offset_x;
+	const int y1 = (yf1 * VECTOR_SERIAL_MAX - VECTOR_SERIAL_MAX/2) * m_serial_scale_y + m_serial_offset_y;
 
 	serial_segment_t * const new_segment
 		= new serial_segment_t(x0, y0, x1, y1, intensity);
@@ -306,6 +315,10 @@ void vector_device::serial_draw_line(
 void vector_device::serial_reset()
 {
 	m_serial_offset = 0;
+	m_serial_buf[m_serial_offset++] = 0;
+	m_serial_buf[m_serial_offset++] = 0;
+	m_serial_buf[m_serial_offset++] = 0;
+	m_serial_buf[m_serial_offset++] = 0;
 	m_serial_buf[m_serial_offset++] = 0;
 	m_serial_buf[m_serial_offset++] = 0;
 	m_serial_buf[m_serial_offset++] = 0;
@@ -415,12 +428,13 @@ void vector_device::serial_send()
 	m_serial_buf[m_serial_offset++] = 1;
 	m_serial_buf[m_serial_offset++] = 1;
 	m_serial_buf[m_serial_offset++] = 1;
+	m_serial_buf[m_serial_offset++] = 1;
 
 	size_t offset = 0;
 
 	if(1)
 	printf("%zu vectors: off=%u on=%u bright=%u%s\n",
-		m_serial_offset/3,
+		m_serial_offset/4,
 		m_vector_transit[0],
 		m_vector_transit[1],
 		m_vector_transit[2],
@@ -501,7 +515,7 @@ void vector_device::device_start()
 	m_serial_sort = 1;
 
 	// allocate enough buffer space, although we should never use this much
-	m_serial_buf = auto_alloc_array_clear(machine(), unsigned char, (MAX_POINTS+2) * 3);
+	m_serial_buf = auto_alloc_array_clear(machine(), unsigned char, (MAX_POINTS+2) * 4);
 	if (!m_serial_buf)
 	{
 		// todo: how to signal an error?
