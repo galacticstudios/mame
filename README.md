@@ -1,7 +1,12 @@
 
-# **MAME** #
+# **Vectrex32 MAME** #
 
 [![Build Status](https://travis-ci.org/mamedev/mame.svg)](https://travis-ci.org/mamedev/mame) [![Build status](https://ci.appveyor.com/api/projects/status/te0qy56b72tp5kmo?svg=true)](https://ci.appveyor.com/project/startaq/mame) [![Join the chat at https://gitter.im/mamedev/mame](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/mamedev/mame?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+What is Vectrex32 MAME?
+=======================
+
+Vectrex32 MAME is a version of MAME that uses the Vectrex32 to display games. It's based on [Trammell Hudson's modifications to MAME 0.168](https://trmm.net/MAME) for his vector graphics board. It is intended for playing vector graphics games only.
 
 What is MAME?
 =============
@@ -30,25 +35,13 @@ As we are still contacting developers, MAME is still distributed under the [MAME
 How to compile?
 =============
 
-If you're on a *nix system, it could be as easy as typing
+If you're on a *nix system, it is as easy as typing
 
 ```
-make
+make SUBTARGET=vector
 ```
 
-for a MAME build,
-
-```
-make SUBTARGET=arcade
-```
-
-for an arcade-only build, or
-
-```
-make SUBTARGET=mess
-```
-
-for a MESS build (provided you have all the [prerequisites](http://forums.bannister.org/ubbthreads.php?ubb=showflat&Number=35138)).
+for an vector-only build.
 
 For Windows users, we provide a ready-made [build environment](http://mamedev.org/tools/) based on MinGW-w64. [Visual Studio builds](http://wiki.mamedev.org/index.php?title=Building_MAME_using_Microsoft_Visual_Studio_compilers) are also possible.
 
