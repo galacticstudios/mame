@@ -26,10 +26,10 @@ configuration { "vs*" }
 configuration { }
 
 if not _OPTIONS["DONT_USE_NETWORK"] then
-	defines {
-		"USE_NETWORK",
-		"OSD_NET_USE_PCAP",
-	}
+--	defines {
+--		"USE_NETWORK",
+--		"OSD_NET_USE_PCAP",
+--	}
 end
 
 if _OPTIONS["USE_SDL"]=="1" then

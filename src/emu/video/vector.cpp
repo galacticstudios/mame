@@ -39,7 +39,9 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#ifndef _WIN32
 #include <termios.h>
+#endif
 #include <errno.h>
 
 #include <inttypes.h>
@@ -195,6 +197,11 @@ serial_open(
         const char * const dev
 )
 {
+#ifdef _WIN32   
+        const int fd = open(dev, O_RDWR);
+        if (fd < 0)
+            return -1;
+#else    
         const int fd = open(dev, O_RDWR | O_NONBLOCK | O_NOCTTY, 0666);
         if (fd < 0)
                 return -1;
@@ -205,6 +212,7 @@ serial_open(
         attr.c_cflag |= CLOCAL | CREAD;
         attr.c_oflag &= ~OPOST;
         tcsetattr(fd, TCSANOW, &attr);
+#endif
 
         return fd;
 }
@@ -433,8 +441,8 @@ void vector_device::serial_send()
 	size_t offset = 0;
 
 	if(1)
-	printf("%zu vectors: off=%u on=%u bright=%u%s\n",
-		m_serial_offset/4,
+	printf("%lu vectors: off=%u on=%u bright=%u%s\n",
+		(unsigned long) m_serial_offset/4,
 		m_vector_transit[0],
 		m_vector_transit[1],
 		m_vector_transit[2],
