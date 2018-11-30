@@ -33,7 +33,7 @@ Going forward, we will be using the 3-Clause BSD license for the core, and the L
 As we are still contacting developers, MAME is still distributed under the [MAME license](docs/mamelicense.txt) as of this time. If you have not been contacted yet, and believe you have contributed code to MAME in the past, please [contact us](mailto:mamedev@mamedev.org).
 
 How to compile?
-=============
+===============
 
 If you're on a *nix system, it is as easy as typing
 
@@ -43,10 +43,62 @@ make SUBTARGET=vector
 
 for an vector-only build.
 
-For Windows users, we provide a ready-made [build environment](http://mamedev.org/tools/) based on MinGW-w64. [Visual Studio builds](http://wiki.mamedev.org/index.php?title=Building_MAME_using_Microsoft_Visual_Studio_compilers) are also possible.
+For Windows users, it's more complicated. First, download version 1.1 of the MSYS2 build tools, either the [32-bit version](https://github.com/mamedev/buildtools/releases/download/1.1/msys32-2016-01-02.exe) or the [64-bit version](https://github.com/mamedev/buildtools/releases/download/1.1/msys64-2016-01-02.exe). The reason for getting the obsolete version is that it's contemporaneous with MAME 0.168.
 
+Run the downloaded installer file. It's intended to be extracted to C:\ (so it will create a directory C:\msys32 or C:\msys64). If you decide to put it elsewhere, after you unpack double-click **autorebase.bat**
 
+To open a non-Posix shell there is the batch file **buildtools.bat** for regular windows console.
 
+It's important to setup your git environment first
+
+```
+git config --global core.autocrlf true
+```
+
+And if you are contributor
+
+```
+git config --global user.email youremail@something.com
+git config --global user.name "Firstname Lastname"
+```
+
+To download the Vectrex32 MAME source under your Msys2 user's homedir:
+
+```
+git clone https://github.com/galacticstudios/mame
+```
+
+And finally to build:
+
+```
+make SUBTARGET=vector
+```
+
+Building MAME using Microsoft Visual Studio compilers
+-----------------------------------------------------
+
+By default, MAME is configured via the makefile to build using the MinGW gcc compiler. Although this is a nice cross-platform solution, debugging binaries built this way leaves a lot to be desired.
+
+Alternatively, you can configure MAME to build using Visual Studio. Once you have done that, you can debug problems in MAME using the Visual Studio debugger, which is a huge step up from gdb.
+
+Since MAME uses modern C++ features, Visual Studio 2015 with Update 3 is required (Update 3 adds minimal support for variable templates used by MAME). If you don't have a paid license, Visual Studio Community 2015 is available from Microsoft for free (but requires sign-in with a Microsoft account).
+
+Here's how to make it work:
+
+1. You must already have an environment that can build MAME using the MinGW tools. Although you won't be using gcc to compile, you will be using several of the other tools included in the standard MAME MinGW Development Environment
+2. Switch to the directory where the root MAME makefile lives.
+3. Once you've done that, simply run: make vs2015 PYTHON_EXECUTABLE=c:/msys64/mingw64/bin/python.exe and wait for it to create projects
+4. In order not to specify PYTHON_EXECUTABLE all the time, just place it in system variables
+5. If you are building with XP compatibility enabled run make vs2015_xp
+6. Browse to the folder containing solution file and open it with Visual Studio
+7. Inside Visual Studio you can change to Debug/Release x86 or x64 builds
+8. While doing development please note that you need to update LUA files in scripts folders in order to add new sources and regenerate projects
+9. Note that all parameters for partial compilation works so you can do make SUBTARGET=tiny vs2015 or make vs2015 SUBTARGET=drivername SOURCES=src\mame\drivers\drivername.cpp
+
+Making a run-time environment
+=============================
+
+The build produces a file called mamevector32.exe or mamevector64.exe. To run, it needs the file libwinpthread-1.dll in the PATH. You'll find that DLL in msys64\mingw64\bin (or the 32 bit equivalent). I recommend copying mamevector64.exe and libwinpthread-1.dll into a convenient directory. Then, in that directory, create a subdirectory called roms. This is where the MAME ROMs will go. Due to copyright laws, you're on your own for obtaining those ROMs.
 
 Where can I find out more?
 =============
