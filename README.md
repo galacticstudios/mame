@@ -8,6 +8,8 @@ What is Vectrex32 MAME?
 
 Vectrex32 MAME is a version of MAME that uses the Vectrex32 to display games. It's based on [Trammell Hudson's modifications to MAME 0.168](https://trmm.net/MAME) for his vector graphics board. It is intended for playing vector graphics games only.
 
+Trammell's modifications are designed to output to his [V.st board](https://trmm.net/V.st). That page includes a description of the communication protocol.
+
 What is MAME?
 =============
 
